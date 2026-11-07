@@ -21,6 +21,10 @@
 
 /* Live festival navigator */
 .band{scroll-margin-top:110px;transition:border-color .3s,box-shadow .3s}.band.is-live{border-color:#e0b878;box-shadow:0 0 0 1px #d5ad78,0 0 32px #d5ad7820}.band.is-next{border-color:#88735b}.band-status{display:inline-block;margin:0 0 10px;padding:3px 10px;border-radius:30px;font-size:.7rem;font-weight:900;letter-spacing:.1em;background:#665038;color:#fff}.band-status.next{background:#353e4d;color:#d9e5f4}.band-progress{height:4px;background:#39313a;border-radius:4px;margin:14px 0 0;overflow:hidden}.band-progress>span{display:block;height:100%;background:var(--gold);transition:width .5s}.livebar{position:sticky;top:0;z-index:20;background:#17151cf2;backdrop-filter:blur(18px);border-bottom:1px solid #6c544c;padding:10px 16px;box-shadow:0 5px 25px #0006}.livebar-inner{max-width:1050px;margin:auto;display:flex;align-items:center;gap:12px;justify-content:space-between}.livecopy{min-width:0;line-height:1.25}.livecopy .overline{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:900}.livecopy .current{font-size:.98rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.livecopy .upnext{font-size:.76rem;color:var(--muted);margin-top:3px}.livebutton{flex-shrink:0;border:1px solid var(--gold);background:#d5ad78;color:#171219;border-radius:40px;font:800 .82rem system-ui;padding:11px 15px;cursor:pointer}.livebutton:disabled{opacity:.4;cursor:default}.livebar-progress{height:2px;background:#41353d;margin-top:9px}.livebar-progress span{display:block;background:var(--gold);height:100%;width:0;transition:width .5s}body{padding-bottom:0}@media(max-width:500px){.livecopy .current{font-size:.86rem}.livebutton{padding:9px 11px;font-size:.76rem}.livebar{padding:9px 12px}}@media print{.livebar,.band-status,.band-progress{display:none!important}}
+/* Place the show badge below the artwork, not underneath it. */
+.band-photo{margin-bottom:18px}.band-status{position:relative;z-index:3;margin:0 0 12px;vertical-align:middle}
+.band-photo img{object-position:center 35%}
+@media(max-width:500px){.livebar-inner{align-items:center}.livecopy .upnext{line-height:1.35}.livebutton{max-width:38%;white-space:normal;text-align:center}}
 </style>
 </head>
 <body>
@@ -45,7 +49,7 @@
 </div></section>
 <section class="section" id="tips"><h2>De festivalradar ✦</h2><p>Vijf optredens die ik extra zou omcirkelen — niet per se een objectieve ranglijst, maar een mix van geschiedenis, muzikale diepgang en nieuwsgierigheid.</p><div class="radar"><div class="pick"><strong>01</strong><h3>Celestial Season</h3><p>Historische death/doom met een uniek geluid.</p></div><div class="pick"><strong>02</strong><h3>Godthrymm</h3><p>Voor fans van My Dying Bride en diepe melancholie.</p></div><div class="pick"><strong>03</strong><h3>The Answer Lies in the Black Void</h3><p>Atmosferisch en avontuurlijk.</p></div><div class="pick"><strong>04</strong><h3>Pagan Altar</h3><p>Een levende doomcultlegende.</p></div><div class="pick"><strong>05</strong><h3>Brave Murder Night</h3><p>Een eerbetoon aan een iconisch album.</p></div></div></section>
 <section class="section" id="praktisch"><h2>Praktische informatie</h2><div class="info"><p><strong>Locatie:</strong> Baroeg, Spinozaweg 300, 3076 ET Rotterdam</p><p><strong>Zaterdag 7 november:</strong> deuren 15:00 · eerste band 15:30 · laatste band eindigt 22:45</p><p><strong>Zondag 8 november:</strong> deuren 14:00 · eerste band 14:25 · laatste band eindigt 21:40</p><p><strong>Tip:</strong> neem gehoorbescherming mee. Doom mag zwaar zijn, tinnitus hoeft niet. 🤘</p></div></section>
-</div><footer class="footer"><div class="wrap"><strong>Dutch Doom Days XXIV · 2026</strong><p>Elke band heeft eigen artwork dat offline werkt. Waar beschikbaar worden aanvullende foto’s online geladen via Wikimedia Commons. Een onafhankelijke, met liefde samengestelde festivalgids op basis van het gedeelde programma. Beschrijvingen zijn bedoeld als muzikale kennismaking; wijzigingen in het programma zijn mogelijk.</p><p>Made for the slow, the heavy &amp; the beautifully miserable. 🖤</p></div></footer>
+</div><footer class="footer"><div class="wrap"><strong>Dutch Doom Days XXIV · 2026</strong><p>Elke band heeft eigen artwork dat offline werkt. Waar beschikbaar worden aanvullende foto’s online geladen via Wikipedia of Wikimedia Commons. Een onafhankelijke, met liefde samengestelde festivalgids op basis van het gedeelde programma. Beschrijvingen zijn bedoeld als muzikale kennismaking; wijzigingen in het programma zijn mogelijk.</p><p>Made for the slow, the heavy &amp; the beautifully miserable. 🖤</p></div></footer>
 <script>
 (()=>{'use strict';
 const slots=[
@@ -61,24 +65,34 @@ cards.forEach((card,i)=>{
  const name=document.createElement('span');name.className='art-name';name.textContent=card.querySelector('h3').textContent;
  figure.append(glyph,name);card.prepend(figure);
 });
-// Wikimedia Commons is queried on demand. Never show an unrelated stock photo as a band photo.
-const commonsQueries=['Afgrond doom metal band','Sordid Empire doom metal band','Facade doom metal Netherlands band','Wolves in Winter doom metal band','Godthrymm band','Pagan Altar band','Mortajas doom metal Chile','The Drowning doom metal band','The Answer Lies in the Black Void band','Officium Triste band','Celestial Season band','Katatonia Brave Murder Day album'];
-async function loadBandPhoto(card,query){
+// Verified Wikipedia article thumbnails first; Commons search only when the file title matches the band.
+// Some obscure bands have no freely licensed photos: decorative artwork remains visible.
+const wikiTitles=['','','','','Godthrymm','Pagan Altar (band)','','','','Officium Triste','Celestial Season','Brave Murder Day'];
+const commonsQueries=['Afgrond sludge doom band','Sordid Empire doom band','Façade doom death metal','Wolves in Winter doom metal','Godthrymm doom band','Pagan Altar doom band','Mortajas Chile doom band','The Drowning Welsh doom band','The Answer Lies in the Black Void band','Officium Triste band','Celestial Season doom band','Katatonia Brave Murder Day album'];
+function showPhoto(card,src,url){
+ const figure=card.querySelector('.band-photo');if(figure.querySelector('img'))return;
+ const img=document.createElement('img');img.loading='lazy';img.alt='Foto of albumhoes bij '+card.querySelector('h3').textContent;img.referrerPolicy='no-referrer';
+ const credit=document.createElement('a');credit.href=url;credit.target='_blank';credit.rel='noopener noreferrer';credit.textContent='Bron ↗';
+ img.onerror=()=>{img.remove();credit.remove()};figure.append(img,credit);img.src=src;
+}
+async function loadBandPhoto(card,query,i){
  try{
-  const api='https://commons.wikimedia.org/w/api.php?'+new URLSearchParams({action:'query',generator:'search',gsrsearch:'filetype:bitmap '+query,gsrnamespace:'6',gsrlimit:'8',prop:'imageinfo',iiprop:'url|mime',iiurlwidth:'800',format:'json',origin:'*'});
+  if(wikiTitles[i]){
+   const url='https://en.wikipedia.org/w/api.php?'+new URLSearchParams({action:'query',titles:wikiTitles[i],prop:'pageimages',pithumbsize:'900',format:'json',origin:'*'});
+   const response=await fetch(url);
+   if(response.ok){const data=await response.json();const page=Object.values(data.query?.pages||{}).find(p=>p.thumbnail?.source);
+    if(page){showPhoto(card,page.thumbnail.source,'https://en.wikipedia.org/wiki/'+encodeURIComponent(wikiTitles[i].replaceAll(' ','_')));return;}}
+  }
+  const api='https://commons.wikimedia.org/w/api.php?'+new URLSearchParams({action:'query',generator:'search',gsrsearch:query,gsrnamespace:'6',gsrlimit:'15',prop:'imageinfo',iiprop:'url|mime',iiurlwidth:'900',format:'json',origin:'*'});
   const response=await fetch(api);if(!response.ok)return;
   const data=await response.json();const pages=Object.values(data.query?.pages||{});
-  const tokens=query.toLowerCase().replace(/[^a-z0-9 ]/g,'').split(' ').filter(w=>w.length>3&&!['metal','band','doom','album','netherlands','chile'].includes(w));
-  const found=pages.find(page=>{const title=page.title.toLowerCase();return tokens.some(t=>title.includes(t))&&page.imageinfo?.[0]?.mime?.startsWith('image/')});
-  if(!found)return;
-  const info=found.imageinfo[0],src=info.thumburl||info.url;
-  const figure=card.querySelector('.band-photo');
-  const img=document.createElement('img');img.loading='lazy';img.alt='Afbeelding bij '+card.querySelector('h3').textContent;img.referrerPolicy='no-referrer';
-  const credit=document.createElement('a');credit.href=info.descriptionurl||'https://commons.wikimedia.org/';credit.target='_blank';credit.rel='noopener noreferrer';credit.textContent='Foto · Wikimedia Commons ↗';
-  img.onerror=()=>{img.remove();credit.remove()};figure.append(img,credit);img.src=src;
- }catch(e){/* No network? Text-only guide remains fully usable. */}
+  const name=card.querySelector('h3').textContent.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const tokens=name.split(/\s+/).filter(t=>t.length>3);
+  const found=pages.find(page=>{const title=page.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');return tokens.every(t=>title.includes(t))&&page.imageinfo?.[0]?.mime?.startsWith('image/')});
+  if(found){const info=found.imageinfo[0];showPhoto(card,info.thumburl||info.url,info.descriptionurl||'https://commons.wikimedia.org/');}
+ }catch(e){/* No connection: local artwork stays visible. */}
 }
-cards.forEach((card,i)=>loadBandPhoto(card,commonsQueries[i]));
+cards.forEach((card,i)=>loadBandPhoto(card,commonsQueries[i],i));
 const shows=slots.map(([date,start,end],i)=>({card:cards[i],name:cards[i].querySelector('h3').textContent,start:Date.parse(date+'T'+start+':00+01:00'),end:Date.parse(date+'T'+end+':00+01:00'),clock:start}));
 const label=document.getElementById('live-label'),current=document.getElementById('live-current'),next=document.getElementById('live-next'),button=document.getElementById('jump-now'),progress=document.getElementById('live-progress');
 let target=null;
@@ -94,7 +108,7 @@ function update(){
   label.textContent='● SPEELT NU · Nederlandse tijd';current.textContent=live.name;
   next.textContent=upcoming?'Hierna: '+upcoming.name+' · '+upcoming.clock:'Laatste optreden van het festival';
   pct=Math.min(100,Math.max(0,(now-live.start)/(live.end-live.start)*100));
-  live.card.classList.add('is-live');live.card.insertAdjacentHTML('afterbegin','<span class="band-status">● SPEELT NU</span>');
+  live.card.classList.add('is-live');live.card.querySelector('.band-photo').insertAdjacentHTML('afterend','<span class="band-status">● SPEELT NU</span>');
   const bar=document.createElement('div');bar.className='band-progress';bar.innerHTML='<span></span>';bar.querySelector('span').style.width=pct+'%';live.card.append(bar);
  }else if(upcoming){
   const beforeSaturday=now<firstDayStart;
@@ -104,7 +118,7 @@ function update(){
   label.textContent=beforeSaturday?'☾ HET FESTIVAL MOET NOG BEGINNEN':beforeSunday?'☾ ZONDAG KOMT ERAAN':'VOLGENDE OPTREDEN';
   current.textContent=(beforeSaturday?'Eerste band: ':beforeSunday?'Morgen / zondag: ':'Straks: ')+upcoming.name;
   next.textContent=(beforeSaturday||beforeSunday?'Deuren '+doors+' · ':'')+'Start '+day+' '+upcoming.clock+' · over '+countdown(upcoming.start-now);
-  upcoming.card.classList.add('is-next');upcoming.card.insertAdjacentHTML('afterbegin','<span class="band-status next">'+(beforeSaturday||beforeSunday?'EERSTVOLGENDE SHOW':'VOLGENDE OPTREDEN')+'</span>');
+  upcoming.card.classList.add('is-next');upcoming.card.querySelector('.band-photo').insertAdjacentHTML('afterend','<span class="band-status next">'+(beforeSaturday||beforeSunday?'EERSTVOLGENDE SHOW':'VOLGENDE OPTREDEN')+'</span>');
  }else{
   label.textContent='DUTCH DOOM DAYS XXIV';current.textContent='Het festival zit erop 🖤';
   next.textContent='Alle twaalf optredens staan hieronder.';
